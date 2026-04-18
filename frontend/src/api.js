@@ -72,4 +72,9 @@ export const api = {
   dashStats: () => request("/api/dashboard/stats"),
   dashRecentes: () => request("/api/dashboard/recentes"),
   dashCertificados: () => request("/api/dashboard/certificados"),
+
+  // Alertas
+  listarAlertas: (apenasAbertos = true) =>
+    request(`/api/alertas?apenas_abertos=${apenasAbertos}`),
+  resolverAlerta: (id) => request(`/api/alertas/${id}/resolver`, { method: "POST" }),
 };

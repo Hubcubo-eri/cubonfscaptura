@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import __version__
 from app.config import get_settings
 from app.database import init_db
-from app.routers import agendamentos, clientes, consultas, dashboard, nfse
+from app.routers import agendamentos, alertas, clientes, consultas, dashboard, nfse
 
 logging.basicConfig(
     level=logging.INFO,
@@ -57,6 +57,7 @@ def create_app() -> FastAPI:
     app.include_router(nfse.router)
     app.include_router(dashboard.router)
     app.include_router(agendamentos.router)
+    app.include_router(alertas.router)
 
     return app
 

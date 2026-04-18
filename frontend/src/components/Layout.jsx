@@ -5,6 +5,7 @@ const NAV = [
   { key: "clientes", label: "Clientes" },
   { key: "consultas", label: "Consultas" },
   { key: "nfse", label: "NFS-e" },
+  { key: "alertas", label: "Alertas" },
 ];
 
 export default function Layout({ view, onNavigate, children }) {

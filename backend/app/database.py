@@ -29,6 +29,6 @@ def get_db():
 def init_db() -> None:
     """Cria as tabelas no banco (para dev/SQLite; em prod, usar Alembic)."""
     # Importar todos os modelos para que o Base.metadata seja populado
-    from app.models import agendamento, certificado, cliente, consulta, nfse  # noqa: F401
+    from app.models import agendamento, alerta, certificado, cliente, consulta, nfse  # noqa: F401
 
     Base.metadata.create_all(bind=engine)

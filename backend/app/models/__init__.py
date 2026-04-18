@@ -1,5 +1,6 @@
 """Modelos SQLAlchemy do CUBO Captura."""
 from app.models.agendamento import Agendamento, TipoAgendamento
+from app.models.alerta import Alerta
 from app.models.certificado import Certificado
 from app.models.cliente import Cliente
 from app.models.consulta import Consulta, StatusConsulta, TipoConsulta
@@ -14,4 +15,5 @@ __all__ = [
     "NfseXml",
     "Agendamento",
     "TipoAgendamento",
+    "Alerta",
 ]
