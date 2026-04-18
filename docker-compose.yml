@@ -1,0 +1,65 @@
+services:
+  backend:
+    build: ./backend
+    container_name: cubo_captura_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/storage:/app/storage
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://cubo:${DB_PASSWORD:-cubopwd}@db:5432/cubo_captura
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+
+  frontend:
+    build: ./frontend
+    container_name: cubo_captura_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:16-alpine
+    container_name: cubo_captura_db
+    restart: unless-stopped
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: cubo_captura
+      POSTGRES_USER: cubo
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-cubopwd}
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: cubo_captura_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  worker:
+    build: ./backend
+    container_name: cubo_captura_worker
+    restart: unless-stopped
+    command: celery -A app.tasks.consulta_agendada.celery_app worker --loglevel=info
+    volumes:
+      - ./backend/storage:/app/storage
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://cubo:${DB_PASSWORD:-cubopwd}@db:5432/cubo_captura
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  pgdata:
