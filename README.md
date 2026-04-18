@@ -54,19 +54,62 @@ npm run dev
 
 App em `http://localhost:3000` (proxy `/api` → backend).
 
-## Quickstart (produção com Docker)
+## Quickstart (produção com Docker + Caddy TLS)
 
 ```bash
+# 1. Configurar variáveis de ambiente
 cp backend/.env.example backend/.env
-# Edite backend/.env: MASTER_KEY, DATABASE_URL, etc.
-export DB_PASSWORD="senha-forte-aqui"
-docker compose up -d --build
-# Aplica migrations no PostgreSQL:
+
+# 2. Gerar segredos fortes (IMPORTANTE — nunca usar os defaults em produção):
+python -c "import secrets; print('MASTER_KEY=' + secrets.token_urlsafe(48))"
+python -c "import secrets; print('JWT_SECRET=' + secrets.token_urlsafe(48))"
+# Copie as duas linhas para backend/.env, substituindo os placeholders.
+
+# 3. Definir admin inicial (opcional, mas recomendado):
+#    ADMIN_EMAIL=voce@cubosaude.com.br
+#    ADMIN_PASSWORD=<senha forte que você vai trocar no primeiro login>
+#    ADMIN_NOME=Seu Nome
+
+# 4. Configurar DNS apontando seu domínio para o host e editar Caddyfile:
+#    troque captura.cubosaude.com.br pelo domínio real.
+
+# 5. Exportar a senha do Postgres:
+export DB_PASSWORD="senha-forte-para-o-banco"
+
+# 6. Subir stack de produção (com Caddy + TLS automático):
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+
+# 7. Aplicar migrations:
+docker compose exec backend alembic upgrade head
+```
+
+A stack expõe apenas as portas 80/443 (Caddy). Backend, frontend, redis e
+Postgres ficam na rede interna do Docker.
+
+### Para dev / homologação sem TLS
+
+```bash
+docker compose up -d --build          # expõe backend:8000 e frontend:3000
 docker compose exec backend alembic upgrade head
 ```
 
 - Frontend: http://localhost:3000
 - Backend / Swagger: http://localhost:8000/docs
+
+## Segredos em produção
+
+| Variável        | Como gerar                                                   |
+|-----------------|--------------------------------------------------------------|
+| `MASTER_KEY`    | `python -c "import secrets; print(secrets.token_urlsafe(48))"` |
+| `JWT_SECRET`    | `python -c "import secrets; print(secrets.token_urlsafe(48))"` |
+| `DB_PASSWORD`   | `openssl rand -base64 32` (ou um gerenciador de senhas)      |
+
+- **Nunca** commite o `backend/.env` real.
+- A `MASTER_KEY` cifra as senhas dos certificados A1; se perder, **todas as
+  senhas de cert ficam ilegíveis** (é preciso reenviá-las).
+- Guarde `MASTER_KEY` e `JWT_SECRET` em um gerenciador de segredos
+  (1Password, Bitwarden, AWS Secrets Manager, etc.) com cópia segura
+  off-site.
 
 ## Migrations (Alembic)
 

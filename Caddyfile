@@ -1,0 +1,45 @@
+# Caddy reverse proxy com TLS automático via Let's Encrypt.
+#
+# Substitua ``captura.cubosaude.com.br`` pelo domínio real apontado para o host.
+# Caddy provisiona e renova o certificado TLS automaticamente quando o servidor
+# está acessível pela internet nas portas 80 e 443.
+#
+# Para rodar localmente sem TLS real, troque o bloco por:
+#   :8080 {
+#     reverse_proxy /api/* backend:8000
+#     reverse_proxy frontend:3000
+#   }
+
+captura.cubosaude.com.br {
+	encode gzip zstd
+
+	# Cabeçalhos de segurança
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "geolocation=(), microphone=(), camera=()"
+		-Server
+	}
+
+	# API REST
+	handle /api/* {
+		reverse_proxy backend:8000 {
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+		}
+	}
+
+	# Frontend (SPA)
+	handle {
+		reverse_proxy frontend:3000
+	}
+
+	# Rate limit simples de login para dificultar brute-force (requer
+	# plugin caddy-ratelimit se você quiser ativar; por padrão deixamos off)
+	# @login path /api/auth/login
+	# rate_limit @login 5r/m
+}
