@@ -175,10 +175,9 @@ cubonfscaptura/
 
 ## Roadmap
 
-- **Fase 1 MVP** (atual): captura síncrona, dashboard, download ZIP.
-- **Fase 2**: agendamentos Celery, alertas de certificado vencendo.
-- **Fase 3**: integração com Nibo (envio automático).
-- **Fase 4**: suporte multi-município (outros GISS).
+- **Fase 1 MVP** ✅: captura síncrona, dashboard, download ZIP.
+- **Fase 2** ✅: agendamentos Celery, alertas persistidos (cert vencendo).
+- **Fase 3**: suporte multi-município (outros GISS).
 
 ## Licença
 

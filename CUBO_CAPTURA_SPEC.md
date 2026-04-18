@@ -74,15 +74,13 @@ Aplicação web para captura automatizada de XMLs de Notas Fiscais de Serviço E
 - [x] Frontend dashboard (React)
 
 ### Fase 2 — Automação
-- [ ] Celery + Redis (agendamentos)
-- [ ] Notificação de certificado vencendo
+- [x] Celery + Redis (agendamentos)
+- [x] Alertas persistidos (certificado vencendo, falhas)
+- [x] Tela de alertas no frontend
 
-### Fase 3 — Integração Nibo
-- [ ] Envio automático de XMLs para Nibo
-- [ ] Matching NFS-e ↔ lançamentos Nibo
-
-### Fase 4 — Multi-município
+### Fase 3 — Multi-município
 - [ ] Suporte a outros municípios GISS
 - [ ] Configuração dinâmica de WSDL
+- [ ] Painel de municípios suportados
 
 Para detalhes de modelos, endpoints e implementação, ver README.md e código-fonte.
