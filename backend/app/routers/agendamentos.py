@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -39,10 +39,11 @@ def atualizar(agendamento_id: str, payload: AgendamentoUpdate, db: Session = Dep
     return agendamento
 
 
-@router.delete("/{agendamento_id}", status_code=status.HTTP_204_NO_CONTENT)
-def deletar(agendamento_id: str, db: Session = Depends(get_db)) -> None:
+@router.delete("/{agendamento_id}")
+def deletar(agendamento_id: str, db: Session = Depends(get_db)):
     agendamento = db.get(Agendamento, agendamento_id)
     if agendamento is None:
         raise HTTPException(status_code=404, detail="Agendamento não encontrado")
     db.delete(agendamento)
     db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

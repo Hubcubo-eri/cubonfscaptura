@@ -4,7 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
@@ -56,13 +56,14 @@ def atualizar_cliente(cliente_id: str, payload: ClienteUpdate, db: Session = Dep
     return cliente
 
 
-@router.delete("/{cliente_id}", status_code=status.HTTP_204_NO_CONTENT)
-def deletar_cliente(cliente_id: str, db: Session = Depends(get_db)) -> None:
+@router.delete("/{cliente_id}")
+def deletar_cliente(cliente_id: str, db: Session = Depends(get_db)):
     cliente = db.get(Cliente, cliente_id)
     if cliente is None:
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
     db.delete(cliente)
     db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 # ------------------------------------------------------------- certificado
