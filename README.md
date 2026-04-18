@@ -124,6 +124,42 @@ alembic revision --autogenerate -m "..." # gera nova migration a partir dos mode
 alembic downgrade -1                    # reverte uma versão
 ```
 
+## Backup e restore
+
+Scripts em `scripts/backup.sh` e `scripts/restore.sh`. O backup gera dois
+arquivos em `./backups/`:
+
+- `db_<timestamp>.sql.gz` — dump lógico do PostgreSQL (`pg_dump`).
+- `storage_<timestamp>.tar.gz` — certificados `.pfx` e XMLs capturados.
+
+### Rodar manualmente
+
+```bash
+./scripts/backup.sh
+```
+
+### Agendar no crontab do host
+
+```cron
+# Diário às 02:00 UTC, mantém 30 dias:
+0 2 * * * cd /opt/cubo-captura && ./scripts/backup.sh >> /var/log/cubo-backup.log 2>&1
+```
+
+Variáveis aceitas: `BACKUP_DIR`, `RETAIN_DAYS`, `DB_SERVICE`, `DB_NAME`,
+`DB_USER`, `STORAGE_DIR`, `COMPOSE_FILE`. Para enviar off-site (S3), descomente
+as linhas no fim do script.
+
+### Restaurar
+
+```bash
+docker compose stop backend worker beat
+./scripts/restore.sh 20260418T020000Z
+docker compose start backend worker beat
+```
+
+**⚠️** o `.env` com `MASTER_KEY` deve ser guardado separadamente do backup.
+Sem ela, as senhas de certificado dentro do dump ficam ilegíveis.
+
 ## Testes
 
 ```bash
