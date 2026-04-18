@@ -8,11 +8,13 @@ from sqlalchemy.orm import sessionmaker
 
 from app.database import Base, get_db
 from app.main import create_app
+from app.models import Usuario
+from app.services.auth import create_access_token, hash_password
 
 
 @pytest.fixture
 def client(tmp_path, monkeypatch):
-    """TestClient com banco SQLite dedicado e storage em tmp_path."""
+    """TestClient com banco SQLite dedicado, storage em tmp_path e usuário logado."""
     db_path = tmp_path / "test.db"
     engine = create_engine(f"sqlite:///{db_path}", connect_args={"check_same_thread": False})
     Base.metadata.create_all(engine)
@@ -20,6 +22,20 @@ def client(tmp_path, monkeypatch):
 
     monkeypatch.setenv("XML_STORAGE_PATH", str(tmp_path / "xmls"))
     monkeypatch.setenv("CERT_STORAGE_PATH", str(tmp_path / "certs"))
+
+    # Cria usuário de teste
+    with TestingSessionLocal() as s:
+        user = Usuario(
+            email="tester@cubosaude.com.br",
+            nome="Tester",
+            password_hash=hash_password("senha123"),
+            admin=True,
+            ativo=True,
+        )
+        s.add(user)
+        s.commit()
+        s.refresh(user)
+        token = create_access_token(subject=user.id)
 
     app = create_app()
 
@@ -32,6 +48,7 @@ def client(tmp_path, monkeypatch):
 
     app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as c:
+        c.headers.update({"Authorization": f"Bearer {token}"})
         yield c
     engine.dispose()
 

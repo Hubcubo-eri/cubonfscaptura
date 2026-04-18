@@ -1,11 +1,19 @@
 // Cliente HTTP do backend CUBO Captura
+import { auth } from "./auth.js";
+
 const BASE = import.meta.env.VITE_API_URL || "";
 
 async function request(path, options = {}) {
-  const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
-    ...options,
-  });
+  const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+  const token = auth.getToken();
+  if (token && !headers.Authorization) headers.Authorization = `Bearer ${token}`;
+
+  const res = await fetch(`${BASE}${path}`, { ...options, headers });
+  if (res.status === 401) {
+    auth.clear();
+    window.location.reload();
+    throw new Error("Sessão expirada");
+  }
   if (!res.ok) {
     const text = await res.text();
     let detail = text;
@@ -21,10 +29,34 @@ async function request(path, options = {}) {
 }
 
 export const api = {
+  // Auth
+  login: async (email, password) => {
+    const body = new URLSearchParams({ username: email, password });
+    const res = await fetch(`${BASE}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body,
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      let detail = t;
+      try {
+        detail = JSON.parse(t).detail || detail;
+      } catch (_) {}
+      throw new Error(detail || "Falha no login");
+    }
+    const data = await res.json();
+    auth.setToken(data.access_token);
+    const me = await request("/api/auth/me");
+    auth.setUser(me);
+    return me;
+  },
+  logout: () => auth.clear(),
+  me: () => request("/api/auth/me"),
+
   // Clientes
   listarClientes: () => request("/api/clientes"),
-  criarCliente: (data) =>
-    request("/api/clientes", { method: "POST", body: JSON.stringify(data) }),
+  criarCliente: (data) => request("/api/clientes", { method: "POST", body: JSON.stringify(data) }),
   atualizarCliente: (id, data) =>
     request(`/api/clientes/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deletarCliente: (id) => request(`/api/clientes/${id}`, { method: "DELETE" }),
@@ -33,8 +65,12 @@ export const api = {
     const fd = new FormData();
     fd.append("arquivo", arquivo);
     fd.append("senha", senha);
+    const headers = {};
+    const token = auth.getToken();
+    if (token) headers.Authorization = `Bearer ${token}`;
     const res = await fetch(`${BASE}/api/clientes/${id}/certificado`, {
       method: "POST",
+      headers,
       body: fd,
     });
     if (!res.ok) {

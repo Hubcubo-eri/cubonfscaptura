@@ -8,7 +8,7 @@ const NAV = [
   { key: "alertas", label: "Alertas" },
 ];
 
-export default function Layout({ view, onNavigate, children }) {
+export default function Layout({ view, onNavigate, children, user, onLogout }) {
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
       <aside
@@ -38,7 +38,8 @@ export default function Layout({ view, onNavigate, children }) {
                 background: view === item.key ? "rgba(34,211,238,0.12)" : "transparent",
                 color: view === item.key ? "var(--cubo-accent)" : "#cbd5e1",
                 border: "none",
-                borderLeft: view === item.key ? "3px solid var(--cubo-accent)" : "3px solid transparent",
+                borderLeft:
+                  view === item.key ? "3px solid var(--cubo-accent)" : "3px solid transparent",
                 cursor: "pointer",
                 fontSize: 14,
                 fontWeight: 500,
@@ -48,9 +49,27 @@ export default function Layout({ view, onNavigate, children }) {
             </button>
           ))}
         </nav>
-        <div style={{ padding: "16px 24px", fontSize: 11, color: "#64748b", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-          v1.0.0 · GISS Maceió
-        </div>
+        {user && (
+          <div style={{ padding: "16px 24px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ fontSize: 12, color: "#cbd5e1", marginBottom: 2 }}>{user.nome}</div>
+            <div style={{ fontSize: 10, color: "#64748b", marginBottom: 8 }}>{user.email}</div>
+            <button
+              onClick={onLogout}
+              style={{
+                background: "transparent",
+                color: "var(--cubo-accent)",
+                border: "1px solid rgba(34,211,238,0.3)",
+                padding: "4px 10px",
+                borderRadius: 6,
+                fontSize: 11,
+                cursor: "pointer",
+              }}
+            >
+              Sair
+            </button>
+          </div>
+        )}
+        <div style={{ padding: "12px 24px", fontSize: 11, color: "#64748b" }}>v1.0.0</div>
       </aside>
       <main style={{ flex: 1, padding: 32, overflow: "auto" }}>{children}</main>
     </div>

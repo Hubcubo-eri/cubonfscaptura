@@ -27,12 +27,28 @@ def db_session():
 
 @pytest.fixture
 def client(tmp_path, monkeypatch):
+    from app.models import Usuario
+    from app.services.auth import create_access_token, hash_password
+
     db_path = tmp_path / "t.db"
     engine = create_engine(f"sqlite:///{db_path}", connect_args={"check_same_thread": False})
     Base.metadata.create_all(engine)
     TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
     monkeypatch.setenv("XML_STORAGE_PATH", str(tmp_path / "xmls"))
     monkeypatch.setenv("CERT_STORAGE_PATH", str(tmp_path / "certs"))
+
+    with TestingSessionLocal() as s:
+        user = Usuario(
+            email="tester@cubosaude.com.br",
+            nome="Tester",
+            password_hash=hash_password("senha123"),
+            admin=True,
+            ativo=True,
+        )
+        s.add(user)
+        s.commit()
+        s.refresh(user)
+        token = create_access_token(subject=user.id)
 
     app = create_app()
 
@@ -45,6 +61,7 @@ def client(tmp_path, monkeypatch):
 
     app.dependency_overrides[get_db] = override_db
     with TestClient(app) as c:
+        c.headers.update({"Authorization": f"Bearer {token}"})
         yield c, TestingSessionLocal
     engine.dispose()
 

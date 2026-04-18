@@ -5,6 +5,7 @@ from app.models.certificado import Certificado
 from app.models.cliente import Cliente
 from app.models.consulta import Consulta, StatusConsulta, TipoConsulta
 from app.models.nfse import NfseXml
+from app.models.usuario import Usuario
 
 __all__ = [
     "Cliente",
@@ -16,4 +17,5 @@ __all__ = [
     "Agendamento",
     "TipoAgendamento",
     "Alerta",
+    "Usuario",
 ]

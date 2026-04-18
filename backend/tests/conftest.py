@@ -13,3 +13,4 @@ if str(BACKEND_DIR) not in sys.path:
 # Força SQLite em memória + diretórios de storage temporários antes do import da app
 os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
 os.environ.setdefault("MASTER_KEY", "test-master-key-do-not-use-in-prod-0123456789")
+os.environ.setdefault("JWT_SECRET", "test-jwt-secret-do-not-use-in-prod")

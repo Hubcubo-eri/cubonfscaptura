@@ -42,6 +42,16 @@ class Settings(BaseSettings):
     giss_wsdl_maceio: str = "https://ws-maceio.giss.com.br/service-ws/nf/nfse-ws?wsdl"
     giss_timeout_seconds: int = 60
 
+    # Auth (JWT)
+    jwt_secret: str = Field(default="change-me-jwt-secret-for-production-use")
+    jwt_algorithm: str = "HS256"
+    jwt_access_token_hours: int = 12
+
+    # Admin inicial criado via seed (env vars). Deixar vazio para não criar.
+    admin_email: str = ""
+    admin_password: str = ""
+    admin_nome: str = "Administrador"
+
     @field_validator("allowed_origins", mode="before")
     @classmethod
     def split_origins(cls, v):
