@@ -23,7 +23,10 @@ logger = logging.getLogger("cubo_captura")
 async def lifespan(app: FastAPI):
     settings = get_settings()
     logger.info("Iniciando %s v%s [%s]", settings.app_name, __version__, settings.app_env)
-    init_db()
+    # create_all só em dev/SQLite; produção usa `alembic upgrade head`.
+    if settings.database_url.startswith("sqlite") and settings.app_env != "production":
+        init_db()
+        logger.info("SQLite: schema sincronizado via create_all (sem Alembic)")
     yield
     logger.info("Encerrando %s", settings.app_name)
 

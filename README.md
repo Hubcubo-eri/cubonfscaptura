@@ -61,10 +61,35 @@ cp backend/.env.example backend/.env
 # Edite backend/.env: MASTER_KEY, DATABASE_URL, etc.
 export DB_PASSWORD="senha-forte-aqui"
 docker compose up -d --build
+# Aplica migrations no PostgreSQL:
+docker compose exec backend alembic upgrade head
 ```
 
 - Frontend: http://localhost:3000
 - Backend / Swagger: http://localhost:8000/docs
+
+## Migrations (Alembic)
+
+Em dev com SQLite o schema é criado automaticamente no startup. Em produção
+(PostgreSQL) use Alembic:
+
+```bash
+cd backend
+alembic upgrade head                    # aplica migrations pendentes
+alembic current                         # mostra versão atual
+alembic revision --autogenerate -m "..." # gera nova migration a partir dos models
+alembic downgrade -1                    # reverte uma versão
+```
+
+## Testes
+
+```bash
+cd backend
+pytest -v
+```
+
+Cobre: crypto (AES-GCM), xml_builder (ABRASF 2.04), xml_parser (response +
+erros + cancelamento), storage (hash, estrutura, ZIP).
 
 ## Fluxo de uso
 
