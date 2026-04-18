@@ -61,5 +61,21 @@ services:
       - db
       - redis
 
+  beat:
+    build: ./backend
+    container_name: cubo_captura_beat
+    restart: unless-stopped
+    command: celery -A app.tasks.consulta_agendada.celery_app beat --loglevel=info
+    volumes:
+      - ./backend/storage:/app/storage
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://cubo:${DB_PASSWORD:-cubopwd}@db:5432/cubo_captura
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+
 volumes:
   pgdata:
