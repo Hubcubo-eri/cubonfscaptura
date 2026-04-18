@@ -1,0 +1,80 @@
+:root {
+  /* Paleta Cubo */
+  --cubo-dark: #0f1b2d;
+  --cubo-blue: #1e3a8a;
+  --cubo-accent: #22d3ee;
+  --cubo-green: #10b981;
+  --cubo-amber: #f59e0b;
+  --cubo-red: #ef4444;
+  --cubo-surface: #ffffff;
+  --cubo-bg: #f5f7fb;
+  --cubo-border: #e5e7eb;
+  --cubo-text: #1f2937;
+  --cubo-muted: #6b7280;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--cubo-bg);
+  color: var(--cubo-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+button {
+  font-family: inherit;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 14px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--cubo-muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--cubo-border);
+}
+
+table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--cubo-border);
+}
+
+table tbody tr:hover {
+  background: #fafbfd;
+}
+
+/* Scrollbar sutil */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
